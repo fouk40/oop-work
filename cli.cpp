@@ -314,6 +314,12 @@ namespace cli
         {
             const auto choice = getInput<size_t>("\nEnter the index number of the contact to delete (0 to cancel): ");
 
+            if (choice == 0)
+            {
+                std::cout << "Deletion canceled." << std::endl;
+                return;
+            }
+
             if (choice > 0 && choice <= foundContacts.size())
             {
                 int idToDelete = foundContacts[choice - 1].getId();
@@ -348,6 +354,12 @@ namespace cli
         while (true)
         {
             auto idx = getInput<size_t>("\nEnter the index number of the contact to edit (0 to cancel): ");
+
+            if (idx == 0)
+            {
+                std::cout << "Editing canceled." << std::endl;
+                return;
+            }
 
             if (idx > 0 && idx <= foundContacts.size())
             {
@@ -626,10 +638,7 @@ namespace cli
                     }
                 }
             }
-            else
-            {
-                std::cout << "Editing canceled or invalid number entered." << std::endl;
-            }
+            std::cout << "Error: Invalid index number. Please try again." << std::endl;
         }
     }
 
