@@ -16,7 +16,7 @@ namespace cli
         std::cout << "4. Delete Contact" << std::endl;
         std::cout << "5. Edit Contact" << std::endl;
         std::cout << "6. Sort Contacts" << std::endl;
-        std::cout << "0. Save and Exit" << std::endl;
+        std::cout << "0. Exit" << std::endl;
         std::cout << "-----------------------------" << std::endl;
     }
 
