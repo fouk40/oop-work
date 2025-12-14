@@ -57,15 +57,21 @@ int main()
         }
     }
 
-    std::cout << "\nSaving contacts to file..." << std::endl;
-    if (FileManager::saveToFile(filename, phonebook.getAllContacts()))
+    char saveChoice = cli::getInput<char>("\nSave changes? (y/n): ");
+    if (saveChoice == 'y' || saveChoice == 'Y')
     {
-        std::cout << "Data saved successfully. Goodbye!" << std::endl;
+        std::cout << "Saving contacts..." << std::endl;
+        if (FileManager::saveToFile(filename, phonebook.getAllContacts()))
+        {
+            std::cout << "Data saved successfully." << std::endl;
+        }
+        else
+        {
+            std::cout << "Error: Failed to save data." << std::endl;
+        }
     }
     else
     {
-        std::cout << "Error: Failed to save data to file." << std::endl;
+        std::cout << "Changes discarded." << std::endl;
     }
-
-    return 0;
 }
