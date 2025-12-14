@@ -1,6 +1,7 @@
 #include "Phonebook.h"
 #include "validation.h"
 #include <algorithm>
+#include <cctype>
 #include <iostream>
 
 
@@ -70,18 +71,18 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
         for (const auto& criterion : criteria)
         {
             const SearchField field = criterion.first;
-            std::string query = criterion.second;
+            std::string query = validation::trim(criterion.second);
+            if (query.empty())
+            {
+                continue;
+            }
             bool currentCriterionMatch = false;
 
-            std::string normalizedQuery = query;
+            std::string lowerQuery = query;
             if (field != SearchField::PHONE)
             {
-                std::transform(normalizedQuery.begin(), normalizedQuery.end(), normalizedQuery.begin(),
+                std::transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(),
                                [](unsigned char c) { return std::tolower(c); });
-            }
-            else
-            {
-                normalizedQuery = validation::normalizePhoneNumber(query);
             }
 
             switch (field)
@@ -103,7 +104,7 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
                     std::string value = contact.getForename();
                     std::transform(value.begin(), value.end(), value.begin(),
                         [](unsigned char c) { return std::tolower(c); });
-                    if (value.find(normalizedQuery) != std::string::npos)
+                    if (value.find(lowerQuery) != std::string::npos)
                     {
                         currentCriterionMatch = true;
                     }
@@ -114,7 +115,7 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
                     std::string value = contact.getSurname();
                     std::transform(value.begin(), value.end(), value.begin(),
                         [](unsigned char c) { return std::tolower(c); });
-                    if (value.find(normalizedQuery) != std::string::npos)
+                    if (value.find(lowerQuery) != std::string::npos)
                     {
                         currentCriterionMatch = true;
                     }
@@ -125,7 +126,7 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
                     std::string value = contact.getPatronymic();
                     std::transform(value.begin(), value.end(), value.begin(),
                         [](unsigned char c) { return std::tolower(c); });
-                    if (value.find(normalizedQuery) != std::string::npos)
+                    if (value.find(lowerQuery) != std::string::npos)
                     {
                         currentCriterionMatch = true;
                     }
@@ -136,7 +137,7 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
                     std::string value = contact.getAddress();
                     std::transform(value.begin(), value.end(), value.begin(),
                         [](unsigned char c) { return std::tolower(c); });
-                    if (value.find(normalizedQuery) != std::string::npos)
+                    if (value.find(lowerQuery) != std::string::npos)
                     {
                         currentCriterionMatch = true;
                     }
@@ -145,7 +146,7 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
             case SearchField::EMAIL:
                 {
                     std::string value = contact.getEmail();
-                    if (value.find(normalizedQuery) != std::string::npos)
+                    if (value.find(lowerQuery) != std::string::npos)
                     {
                         currentCriterionMatch = true;
                     }
@@ -153,9 +154,26 @@ std::vector<Contact> Phonebook::searchContacts(const std::map<SearchField, std::
                 }
             case SearchField::PHONE:
                 {
+                    std::string queryDigits;
+                    std::copy_if(query.begin(), query.end(), std::back_inserter(queryDigits),
+                                 [](char c){ return std::isdigit(c); });
+
+                    if (!queryDigits.empty() && queryDigits.front() == '8') {
+                        queryDigits[0] = '7';
+                    }
+
+                    if (queryDigits.empty()) {
+                        currentCriterionMatch = false;
+                        break;
+                    }
+
                     for (const auto& phone : contact.getPhoneNumbers())
                     {
-                        if (phone.number.find(normalizedQuery) != std::string::npos)
+                        std::string storedDigits;
+                        std::copy_if(phone.number.begin(), phone.number.end(), std::back_inserter(storedDigits),
+                                     [](char c){ return std::isdigit(c); });
+
+                        if (storedDigits.find(queryDigits) != std::string::npos)
                         {
                             currentCriterionMatch = true;
                             break;
