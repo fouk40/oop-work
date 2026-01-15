@@ -1,703 +1,598 @@
 #include "cli.h"
 #include "validation.h"
-#include <iostream>
+#include <iomanip>
 #include <map>
-#include <vector>
 
-
-namespace cli
-{
-    void displayMenu()
-    {
-        std::cout << "\n--- Phone Book ---" << std::endl;
-        std::cout << "1. Show All Contacts" << std::endl;
-        std::cout << "2. Add New Contact" << std::endl;
-        std::cout << "3. Find Contacts" << std::endl;
-        std::cout << "4. Delete Contact" << std::endl;
-        std::cout << "5. Edit Contact" << std::endl;
-        std::cout << "6. Sort Contacts" << std::endl;
+namespace cli {
+    void displayMenu() {
+        std::cout << "\n--- Phonebook ---" << std::endl;
+        std::cout << "1. Show all contacts" << std::endl;
+        std::cout << "2. Find contacts" << std::endl;
+        std::cout << "3. Add contact" << std::endl;
+        std::cout << "4. Edit contact" << std::endl;
+        std::cout << "5. Delete contact" << std::endl;
+        std::cout << "6. Sort contacts" << std::endl;
         std::cout << "0. Exit" << std::endl;
         std::cout << "-----------------------------" << std::endl;
     }
 
-    void addContact(Phonebook& phonebook)
-    {
-        std::string input;
-        Contact newContact;
+    void printContact(const Contact& contact) {
+        std::cout << "ID: " << contact.getId() << std::endl;
+        std::cout << "Surname: " << contact.getSurname() << std::endl;
+        std::cout << "Forename: " << contact.getForename() << std::endl;
 
-        std::cout << "\n--- Adding a New Contact ---" << std::endl;
+        const std::string patronymic = contact.getPatronymic();
+        std::cout << "Patronymic: " << (patronymic.empty() ? "(not specified)" : patronymic) << std::endl;
 
-        while (true)
-        {
-            std::cout << "Enter forename: ";
-            std::getline(std::cin, input);
-            std::string trimmed = validation::trim(input);
-            if (validation::isValidName(trimmed))
-            {
-                newContact.setForename(trimmed);
-                break;
-            }
-            std::cout << "Error: Empty or invalid forename. Please try again." << std::endl;
+        const std::string address = contact.getAddress();
+        std::cout << "Address: " << (address.empty() ? "(not specified)" : address) << std::endl;
+
+        std::cout << "Birth date: ";
+        const Date birthDate = contact.getBirthDate();
+        if (birthDate.day == 0) {
+            std::cout << "(not specified)" << std::endl;
+        } else {
+            std::cout << std::setfill('0') << std::setw(2) << birthDate.day << "."
+                      << std::setfill('0') << std::setw(2) << birthDate.month << "."
+                      << birthDate.year << std::endl;
         }
 
-        while (true)
-        {
-            std::cout << "Enter surname: ";
-            std::getline(std::cin, input);
-            std::string trimmed = validation::trim(input);
-            if (validation::isValidName(trimmed))
-            {
-                newContact.setSurname(trimmed);
-                break;
-            }
-            std::cout << "Error: Invalid or empty surname. Please try again." << std::endl;
+        std::cout << "Email: " << contact.getEmail() << std::endl;
+
+        std::cout << "Phone numbers:" << std::endl;
+        for (const PhoneNumber& phone : contact.getPhoneNumbers()) {
+            std::cout << "  " << phone.type << ": " << phone.number << std::endl;
         }
-
-        while (true)
-        {
-            std::cout << "Enter patronymic (or press Enter to skip): ";
-            std::getline(std::cin, input);
-            std::string trimmed = validation::trim(input);
-            if (trimmed.empty() || validation::isValidName(trimmed))
-            {
-                newContact.setPatronymic(trimmed);
-                break;
-            }
-            std::cout << "Error: Invalid patronymic. Please try again." << std::endl;
-        }
-
-        while (true)
-        {
-            std::cout << "Enter address (or press Enter to skip): ";
-            std::getline(std::cin, input);
-            std::string trimmed = validation::trim(input);
-            if (validation::isValidAddress(trimmed))
-            {
-                newContact.setAddress(trimmed);
-                break;
-            }
-            std::cout << "Error: Invalid address. Please try again." << std::endl;
-        }
-
-        while (true)
-        {
-            int day = getInput<int>("Enter day of birth (or 0 to skip): ");
-
-            if (day == 0)
-            {
-                break;
-            }
-
-            int month = getInput<int>("Enter month of birth: ");
-            int year = getInput<int>("Enter year of birth: ");
-
-            if (validation::isValidDate(day, month, year))
-            {
-                newContact.setBirthDate(Date(day, month, year));
-                break;
-            }
-            std::cout << "Error: Invalid date. Please try again." << std::endl;
-        }
-
-        while (true)
-        {
-            std::cout << "Enter email: ";
-            std::getline(std::cin, input);
-            std::string trimmed = validation::trim(input);
-            if (validation::isValidEmail(trimmed))
-            {
-                if (phonebook.isEmailUnique(trimmed))
-                {
-                    newContact.setEmail(trimmed);
-                    break;
-                }
-                std::cout << "Error: This email is already in use. Please enter a different one." << std::endl;
-            }
-            else
-            {
-                std::cout << "Error: Invalid email format. Please try again." << std::endl;
-            }
-        }
-
-        std::string type, number;
-        while (true)
-        {
-            std::cout << "Enter phone type (e.g. Mobile): ";
-            std::getline(std::cin, type);
-            type = validation::trim(type);
-            if (validation::isValidPhoneType(type))
-            {
-                break;
-            }
-            std::cout << "Error: Invalid type format. Please try again." << std::endl;
-        }
-
-        while (true)
-        {
-            std::cout << "Enter phone number: ";
-            std::getline(std::cin, number);
-
-            std::string trimmedNumber = validation::trim(number);
-            if (validation::isValidPhoneNumber(trimmedNumber))
-            {
-                if (phonebook.isPhoneNumberUnique(trimmedNumber))
-                {
-                    newContact.addPhoneNumber(type, trimmedNumber);
-                    std::cout << "The first number has been added successfully." << std::endl;
-                    break;
-                }
-                std::cout << "Error: This phone number is already in use. Please enter a different one." << std::endl;
-            }
-            else
-            {
-                std::cout << "Error: Invalid number format. Please try again." << std::endl;
-            }
-        }
-
-        while (true)
-        {
-            std::cout << "\nDo you want to add another phone number?";
-            std::getline(std::cin, input);
-            if (input != "y" && input != "Y")
-            {
-                break;
-            }
-
-            while (true)
-            {
-                std::cout << "Enter phone type (e.g. Mobile): ";
-                std::getline(std::cin, type);
-                type = validation::trim(type);
-                if (validation::isValidPhoneType(type))
-                {
-                    break;
-                }
-                std::cout << "Error: Invalid type format. Please try again." << std::endl;
-            }
-            while (true)
-            {
-                std::cout << "Enter phone number: ";
-                std::getline(std::cin, number);
-                std::string trimmedNumber = validation::trim(number);
-                if (validation::isValidPhoneNumber(trimmedNumber))
-                {
-                    if (phonebook.isPhoneNumberUnique(trimmedNumber))
-                    {
-                        newContact.addPhoneNumber(type, trimmedNumber);
-                        break;
-                    }
-                    std::cout << "Error: This phone number is already in use. "
-                                 "Please enter a different one." << std::endl;
-                }
-                else
-                {
-                    std::cout << "Error: Incorrect number format. Please try again." << std::endl;
-                }
-            }
-        }
-
-        phonebook.addContact(newContact);
-        std::cout << "\nContact saved successfully." << std::endl;
+        std::cout << "--------------------" << std::endl;
     }
 
-    std::vector<Contact> searchContacts(const Phonebook& phonebook)
-    {
+    void printAllContacts(const Phonebook& phonebook) {
+        const std::vector<Contact>& contacts = phonebook.getAllContacts();
+        if (contacts.empty()) {
+            std::cout << "\nPhonebook is empty." << std::endl;
+            return;
+        }
+        std::cout << "\n--- All contacts ---" << std::endl;
+        for (const Contact& contact : contacts) {
+            printContact(contact);
+        }
+    }
+
+    std::vector<Contact> searchContacts(const Phonebook& phonebook) {
+        if (phonebook.getAllContacts().empty()) {
+            std::cout << "\nPhonebook is empty." << std::endl;
+            return {};
+        }
+
         std::map<SearchField, std::string> criteria;
         std::string query;
 
-        std::cout << "\n--- Advanced Search ---" << std::endl;
-        std::cout << "Leave a field empty (press Enter) to not use it for searching" << std::endl;
+        std::cout << "\n--- Advanced search ---" << std::endl;
+        std::cout << "Leave a field empty to not use it for searching." << std::endl;
 
         std::cout << "ID: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::ID, query});
-        }
-
-        std::cout << "Forename: ";
-        std::getline(std::cin, query);
-        if (!query.empty())
-        {
-            criteria.insert({SearchField::FORENAME, query});
         }
 
         std::cout << "Surname: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::SURNAME, query});
+        }
+
+        std::cout << "Forename: ";
+        std::getline(std::cin, query);
+        if (!query.empty()) {
+            criteria.insert({SearchField::FORENAME, query});
         }
 
         std::cout << "Patronymic: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::PATRONYMIC, query});
         }
 
         std::cout << "Address: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::ADDRESS, query});
-        }
-
-        std::cout << "Email: ";
-        std::getline(std::cin, query);
-        if (!query.empty())
-        {
-            criteria.insert({SearchField::EMAIL, query});
         }
 
         std::cout << "Day of birth: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::BIRTH_DAY, query});
         }
 
         std::cout << "Month of birth: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::BIRTH_MONTH, query});
         }
 
         std::cout << "Year of birth: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::BIRTH_YEAR, query});
+        }
+
+        std::cout << "Email: ";
+        std::getline(std::cin, query);
+        if (!query.empty()) {
+            criteria.insert({SearchField::EMAIL, query});
         }
 
         std::cout << "Phone number: ";
         std::getline(std::cin, query);
-        if (!query.empty())
-        {
+        if (!query.empty()) {
             criteria.insert({SearchField::PHONE, query});
         }
 
-
         std::vector<Contact> foundContacts = phonebook.searchContacts(criteria);
 
-        if (foundContacts.empty())
-        {
+        if (foundContacts.empty()) {
             std::cout << "\nNothing found for the specified criteria." << std::endl;
-        }
-        else
-        {
-            std::cout << "\n--- Search Results (" << foundContacts.size() << ") ---" << std::endl;
-            for (size_t i = 0; i < foundContacts.size(); ++i)
-            {
-                std::cout << ">> Index number: " << i + 1 << " <<\n";
-                foundContacts[i].print();
-                std::cout << "--------------------" << std::endl;
+        } else {
+            std::cout << "\n--- Search results (" << foundContacts.size() << ") ---" << std::endl;
+            for (size_t i = 0; i < foundContacts.size(); ++i) {
+                std::cout << ">> Index number: " << i + 1 << " <<" << std::endl;
+                printContact(foundContacts[i]);
             }
         }
         return foundContacts;
     }
 
-    void deleteContact(Phonebook& phonebook)
-    {
-        std::cout << "\n--- Deleting a contact ---" << std::endl;
-        std::cout << "First, find the contact you want to delete" << std::endl;
+    std::string getNameInput(const std::string& prompt, const bool isMandatory) {
+        std::string input;
+        while (true) {
+            std::cout << prompt;
+            std::getline(std::cin, input);
+            std::string name = validation::trim(input);
 
-        const std::vector<Contact> foundContacts = searchContacts(phonebook);
-
-        if (foundContacts.empty())
-        {
-            return;
-        }
-
-        while (true)
-        {
-            const auto choice = getInput<size_t>("\nEnter the index number of the contact to delete (0 to cancel): ");
-
-            if (choice == 0)
-            {
-                std::cout << "Deletion canceled." << std::endl;
-                return;
+            if (!isMandatory && name.empty()) {
+                return "";
             }
 
-            if (choice > 0 && choice <= foundContacts.size())
-            {
-                int idToDelete = foundContacts[choice - 1].getId();
-
-                if (phonebook.deleteContact(idToDelete))
-                {
-                    std::cout << "Contact with ID " << idToDelete << " successfully deleted." << std::endl;
-                }
-                else
-                {
-                    std::cout << "Internal error: Cannot delete contact with ID " << idToDelete << "." << std::endl;
-                }
-                break;
+            if (validation::isValidName(name)) {
+                return name;
             }
-            std::cout << "Error: Failed to delete contact. The index number is out of range. "
-                         "Please try again." << std::endl;
+            std::cout << "Invalid name." << std::endl;
         }
     }
 
-    void editContact(Phonebook& phonebook)
+    std::string getAddressInput(const std::string& prompt) {
+        std::string input;
+        while (true) {
+            std::cout << prompt;
+            std::getline(std::cin, input);
+            std::string address = validation::trim(input);
+
+            if (validation::isValidAddress(address)) {
+                return address;
+            }
+            std::cout << "Invalid address." << std::endl;
+        }
+    }
+
+    Date getBirthDateInput(const std::string& prompt) {
+        while (true) {
+            const int day = getInput<int>(prompt);
+
+            if (day == 0) {
+                return Date();
+            }
+
+            const int month = getInput<int>("Enter month of birth: ");
+            const int year = getInput<int>("Enter year of birth: ");
+
+            if (validation::isValidDate(day, month, year)) {
+                return Date(day, month, year);
+            }
+            std::cout << "Invalid date." << std::endl;
+        }
+    }
+
+    std::string getEmailInput(const std::string& forename, const Phonebook& phonebook,
+                              const int ignoreId)
     {
-        std::cout << "\n--- Editing a Contact ---" << std::endl;
-        std::cout << "First, find the contact you want to edit." << std::endl;
+        std::string input;
+        while (true) {
+            std::cout << "Enter email (must contain the forename '" << forename << "'): ";
+            std::getline(std::cin, input);
+            std::string email = validation::normalizeEmail(input);
 
-        std::vector<Contact> foundContacts = searchContacts(phonebook);
+            if (!validation::isValidEmail(email)) {
+                std::cout << "Invalid email." << std::endl;
+                continue;
+            }
 
-        if (foundContacts.empty())
-        {
+            if (!validation::isForenameInEmail(email, forename)) {
+                std::cout << "Email must contain the forename '" << forename << "'." << std::endl;
+                continue;
+            }
+
+            if (phonebook.isEmailUnique(email, ignoreId)) {
+                return email;
+            }
+            std::cout << "This email is already in use." << std::endl;
+        }
+    }
+
+    std::string getPhoneTypeInput() {
+        std::string input;
+        while (true) {
+            std::cout << "Enter phone type: ";
+            std::getline(std::cin, input);
+            std::string type = validation::trim(input);
+            if (validation::isValidPhoneType(type)) {
+                return type;
+            }
+            std::cout << "Invalid phone type." << std::endl;
+        }
+    }
+
+    std::string getPhoneNumberInput(const Phonebook& phonebook, const Contact* currentContact, const int editIdx) {
+        std::string input;
+        const int contactId = currentContact ? currentContact->getId() : 0;
+
+        while (true) {
+            std::cout << "Enter phone number: ";
+            std::getline(std::cin, input);
+            std::string number = validation::trim(input);
+
+            if (!validation::isValidPhoneNumber(number)) {
+                std::cout << "Invalid phone number." << std::endl;
+                continue;
+            }
+
+            if (!phonebook.isPhoneNumberUnique(number, contactId)) {
+                std::cout << "This phone number is already in use by other contact." << std::endl;
+                continue;
+            }
+
+            if (currentContact) {
+                bool localDuplicate = false;
+                std::string normalizedNumber = validation::normalizePhoneNumber(number);
+
+                const auto& numbers = currentContact->getPhoneNumbers();
+                for (size_t i = 0; i < numbers.size(); ++i) {
+                    if (editIdx != -1 && static_cast<int>(i) == editIdx) {
+                        continue;
+                    }
+
+                    if (numbers[i].number == normalizedNumber) {
+                        localDuplicate = true;
+                        break;
+                    }
+                }
+
+                if (localDuplicate) {
+                    std::cout << "Duplicate phone number inside this contact." << std::endl;
+                    continue;
+                }
+            }
+
+            return number;
+        }
+    }
+
+    void addContact(Phonebook& phonebook) {
+        Contact newContact;
+
+        std::cout << "\n--- Adding contact ---" << std::endl;
+
+        newContact.setSurname(getNameInput("Enter surname: ", true));
+        newContact.setForename(getNameInput("Enter forename: ", true));
+        newContact.setPatronymic(getNameInput("Enter patronymic (or press Enter to skip): ", false));
+        newContact.setAddress(getAddressInput("Enter address (or press Enter to skip): "));
+        newContact.setBirthDate(getBirthDateInput("Enter day of birth (or 0 to skip): "));
+        newContact.setEmail(getEmailInput(newContact.getForename(), phonebook));
+
+        std::string type = getPhoneTypeInput();
+        std::string number = getPhoneNumberInput(phonebook, &newContact);
+        newContact.addPhoneNumber(type, number);
+        std::cout << "First phone number added." << std::endl;
+
+        while (true) {
+            const char choice = getInput<char>("\nDo you want to add another phone number? (Y/n): ");
+            if (choice == 'N' || choice == 'n') {
+                break;
+            }
+            if (choice == 'Y' || choice == 'y') {
+                type = getPhoneTypeInput();
+                number = getPhoneNumberInput(phonebook, &newContact);
+                newContact.addPhoneNumber(type, number);
+                std::cout << "Another phone number added." << std::endl;
+            }
+        }
+
+        phonebook.addContact(newContact);
+        std::cout << "\nContact added." << std::endl;
+    }
+
+    void editContact(Phonebook& phonebook) {
+        if (phonebook.getAllContacts().empty()) {
+            std::cout << "\nPhonebook is empty." << std::endl;
             return;
         }
 
-        while (true)
-        {
-            auto idx = getInput<size_t>("\nEnter the index number of the contact to edit (0 to cancel): ");
+        std::cout << "\n--- Editing contact ---" << std::endl;
+        std::cout << "First, find the contact you want to edit." << std::endl;
 
-            if (idx == 0)
-            {
+        const std::vector<Contact> foundContacts = searchContacts(phonebook);
+
+        if (foundContacts.empty()) {
+            return;
+        }
+
+        while (true) {
+            const auto idx = getInput<size_t>("\nEnter the index number of "
+                                              "the contact to edit (0 to cancel): ");
+
+            if (idx == 0) {
                 std::cout << "Editing canceled." << std::endl;
                 return;
             }
 
-            if (idx > 0 && idx <= foundContacts.size())
-            {
-                int idToEdit = foundContacts[idx - 1].getId();
-                Contact* contactToEdit = phonebook.findContactById(idToEdit);
+            if (idx > 0 && idx <= foundContacts.size()) {
+                const int idToEdit = foundContacts[idx - 1].getId();
+                Contact* contactToEdit = phonebook.findContact(idToEdit);
 
-                if (contactToEdit == nullptr)
-                {
-                    std::cout << "Internal error: failed to find contact for editing." << std::endl;
-                    break;
-                }
-
-                bool editing = true;
-                while (editing)
-                {
+                while (true) {
                     std::cout << "\n--- Editing contact ---" << std::endl;
-                    contactToEdit->print();
-                    std::cout << "---------------------------------" << std::endl;
-                    std::cout << " 1. Edit Forename" << std::endl;
-                    std::cout << " 2. Edit Surname" << std::endl;
-                    std::cout << " 3. Edit Patronymic" << std::endl;
-                    std::cout << " 4. Edit Address" << std::endl;
-                    std::cout << " 5. Edit Email" << std::endl;
-                    std::cout << " 6. Edit Birth Date" << std::endl;
-                    std::cout << " 7. Add Phone Number" << std::endl;
-                    std::cout << " 8. Edit Phone Number" << std::endl;
-                    std::cout << " 9. Delete Phone Number" << std::endl;
+                    printContact(*contactToEdit);
+                    std::cout << " 1. Edit surname" << std::endl;
+                    std::cout << " 2. Edit forename" << std::endl;
+                    std::cout << " 3. Edit patronymic" << std::endl;
+                    std::cout << " 4. Edit address" << std::endl;
+                    std::cout << " 5. Edit birth date" << std::endl;
+                    std::cout << " 6. Edit email" << std::endl;
+                    std::cout << " 7. Add phone number" << std::endl;
+                    std::cout << " 8. Edit phone number" << std::endl;
+                    std::cout << " 9. Delete phone number" << std::endl;
                     std::cout << " 0. Finish Editing" << std::endl;
                     std::cout << "---------------------------------" << std::endl;
 
-                    char choice = getInput<char>("Your choice: ");
-                    std::string input;
+                    const char choice = getInput<char>("Your choice: ");
 
-                    switch (choice)
-                    {
-                    case '1':
-                        {
-                            while (true)
-                            {
-                                std::cout << "Enter new forename: ";
-                                std::getline(std::cin, input);
-                                std::string trimmed = validation::trim(input);
-                                if (validation::isValidName(trimmed))
-                                {
-                                    contactToEdit->setForename(trimmed);
-                                    std::cout << "Forename changed." << std::endl;
-                                    break;
-                                }
-                                std::cout << "Error: invalid forename. Please try again." << std::endl;
-                            }
+                    switch (choice) {
+                        case '1': {
+                            contactToEdit->setSurname(getNameInput("Enter surname: ", true));
+                            std::cout << "Surname updated." << std::endl;
                             break;
                         }
-                    case '2':
-                        {
-                            while (true)
-                            {
-                                std::cout << "Enter new surname: ";
-                                std::getline(std::cin, input);
-                                std::string trimmed = validation::trim(input);
-                                if (validation::isValidName(trimmed))
-                                {
-                                    contactToEdit->setSurname(trimmed);
-                                    std::cout << "Surname changed." << std::endl;
-                                    break;
-                                }
-                                std::cout << "Error: invalid surname. Please try again." << std::endl;
-                            }
-                            break;
-                        }
-                    case '3':
-                        {
-                            while (true)
-                            {
-                                std::cout << "Enter patronymic (or press Enter to clear): ";
-                                std::getline(std::cin, input);
-                                std::string trimmed = validation::trim(input);
-                                if (trimmed.empty() || validation::isValidName(trimmed))
-                                {
-                                    contactToEdit->setPatronymic(trimmed);
-                                    std::cout << "Patronymic changed." << std::endl;
-                                    break;
-                                }
-                                std::cout << "Error: Invalid patronymic. Please try again." << std::endl;
-                            }
-                            break;
-                        }
-                    case '4':
-                        {
-                            while (true)
-                            {
-                                std::cout << "Enter new address (Enter to clear):";
-                                std::getline(std::cin, input);
-                                std::string trimmed = validation::trim(input);
-                                if (validation::isValidAddress(trimmed))
-                                {
-                                    contactToEdit->setAddress(trimmed);
-                                    std::cout << "Address changed." << std::endl;
-                                    break;
-                                }
-                                std::cout << "Error: Invalid address. Please try again." << std::endl;
-                            }
-                            break;
-                        }
-                    case '5':
-                        {
-                            while (true)
-                            {
-                                std::cout << "Enter new email: ";
-                                std::getline(std::cin, input);
-                                std::string trimmed = validation::trim(input);
-                                if (validation::isValidEmail(trimmed))
-                                {
-                                    if (phonebook.isEmailUnique(trimmed, contactToEdit->getId()))
-                                    {
-                                        contactToEdit->setEmail(trimmed);
-                                        std::cout << "Email changed." << std::endl;
-                                        break;
-                                    }
-                                    std::cout << "Error: this email is already in use. "
-                                                 "Please enter a different one." << std::endl;
-                                }
-                                else
-                                {
-                                    std::cout << "Error: invalid email format." << std::endl;
-                                }
-                            }
-                            break;
-                        }
-                    case '6':
-                        {
-                            while (true)
-                            {
-                                int day = getInput<int>("Enter day of birth (or 0 to clear): ");
-                                if (day == 0)
-                                {
-                                    contactToEdit->setBirthDate(Date(0, 0, 0));
-                                    std::cout << "Birth date cleared." << std::endl;
-                                    break;
-                                }
-                                int month = getInput<int>("Enter month of birth: ");
-                                int year = getInput<int>("Enter year of birth: ");
-                                if (validation::isValidDate(day, month, year))
-                                {
-                                    contactToEdit->setBirthDate(Date(day, month, year));
-                                    std::cout << "Birth date changed." << std::endl;
-                                    break;
-                                }
-                                std::cout << "Error: Invalid date. Please try again." << std::endl;
-                            }
-                            break;
-                        }
-                    case '7':
-                        {
-                            std::string type, number;
-                            while (true)
-                            {
-                                std::cout << "Enter phone type (e.g. Mobile): ";
-                                std::getline(std::cin, type);
-                                type = validation::trim(type);
-                                if (validation::isValidPhoneType(type))
-                                {
-                                    break;
-                                }
-                                std::cout << "Error: Invalid type format. Please try again." << std::endl;
-                            }
+                        case '2': {
+                            std::string name = getNameInput("Enter forename: ", true);
+                            if (!validation::isForenameInEmail(contactToEdit->getEmail(), name)) {
+                                std::cout << "Current email does not match the forename '" << name << "'." << std::endl;
+                                std::cout << "You must update the email now." << std::endl;
 
-                            while (true)
-                            {
-                                std::cout << "Enter phone number: ";
-                                std::getline(std::cin, number);
-                                std::string trimmedNumber = validation::trim(number);
-                                if (validation::isValidPhoneNumber(trimmedNumber))
-                                {
-                                    if (phonebook.isPhoneNumberUnique(trimmedNumber))
-                                    {
-                                        contactToEdit->addPhoneNumber(validation::trim(type), trimmedNumber);
-                                        std::cout << "Number successfully added." << std::endl;
-                                        break;
-                                    }
-                                    std::cout << "Error: this phone number is already in use." << std::endl;
-                                }
-                                else
-                                {
-                                    std::cout << "Error: invalid number format." << std::endl;
-                                }
+                                std::string email = getEmailInput(name, phonebook, contactToEdit->getId());
+                                contactToEdit->setEmail(email);
+                                std::cout << "Email updated." << std::endl;
                             }
+                            contactToEdit->setForename(name);
+                            std::cout << "Forename updated." << std::endl;
                             break;
                         }
-                    case '8':
-                        {
-                            const auto& numbers = contactToEdit->getPhoneNumbers();
-                            std::cout << "Select a phone number to edit:" << std::endl;
-                            for (size_t i = 0; i < numbers.size(); ++i)
-                            {
+                        case '3': {
+                            contactToEdit->setPatronymic(getNameInput("Enter patronymic: ", false));
+                            std::cout << "Patronymic updated." << std::endl;
+                            break;
+                        }
+                        case '4': {
+                            contactToEdit->setAddress(getAddressInput("Enter address (or press Enter "
+                                                                      "to clear): "));
+                            std::cout << "Address updated." << std::endl;
+                            break;
+                        }
+                        case '5': {
+                            contactToEdit->setBirthDate(getBirthDateInput("Enter birth day (or 0 "
+                                                                     "to clear): "));
+                            std::cout << "Birth date updated." << std::endl;
+                            break;
+                        }
+                        case '6': {
+                            contactToEdit->setEmail(
+                                getEmailInput(contactToEdit->getForename(), phonebook, contactToEdit->getId()));
+                            std::cout << "Email updated." << std::endl;
+                            break;
+                        }
+                        case '7': {
+                            std::string type = getPhoneTypeInput();
+                            std::string number = getPhoneNumberInput(phonebook, contactToEdit);
+                            contactToEdit->addPhoneNumber(type, number);
+                            std::cout << "Phone number added." << std::endl;
+                            break;
+                        }
+                        case '8': {
+                            const std::vector<PhoneNumber>& numbers = contactToEdit->getPhoneNumbers();
+
+                            for (size_t i = 0; i < numbers.size(); ++i) {
                                 std::cout << i + 1 << ". " << numbers[i].type << ": " << numbers[i].number << std::endl;
                             }
-                            idx = getInput<size_t>("Your choice (0 to cancel): ");
-                            if (idx > 0 && idx <= numbers.size())
-                            {
-                                std::string newType, newNumber;
-                                while (true)
-                                {
-                                    std::cout << "Enter phone type (e.g. Mobile): ";
-                                    std::getline(std::cin, newType);
-                                    newType = validation::trim(newType);
-                                    if (validation::isValidPhoneType(newType))
-                                    {
-                                        break;
-                                    }
-                                    std::cout << "Error: Invalid type format. Please try again." << std::endl;
-                                }
 
-                                while (true)
-                                {
-                                    std::cout << "Enter new number: ";
-                                    std::getline(std::cin, newNumber);
-                                    std::string trimmedNumber = validation::trim(newNumber);
-                                    if (validation::isValidPhoneNumber(trimmedNumber))
-                                    {
-                                        std::string normalizedNumber = validation::normalizePhoneNumber(trimmedNumber);
-                                        if (normalizedNumber == numbers[idx - 1].number ||
-                                            phonebook.isPhoneNumberUnique(normalizedNumber, contactToEdit->getId()))
-                                        {
-                                            contactToEdit->editPhoneNumber(idx - 1, newType, normalizedNumber);
-                                            std::cout << "Number successfully changed." << std::endl;
-                                            break;
-                                        }
-                                        std::cout << "Error: this number is already in use." << std::endl;
-                                    }
-                                    else
-                                    {
-                                        std::cout << "Error: invalid number format." << std::endl;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                std::cout << "Edit cancelled or invalid input." << std::endl;
-                            }
-                            break;
-                        }
-                    case '9':
-                        {
-                            const auto& numbers = contactToEdit->getPhoneNumbers();
-                            if (numbers.size() <= 1)
-                            {
-                                std::cout << "Cannot delete the only one phone number." << std::endl;
+                            const auto pIdx = getInput<size_t>("Select a phone number "
+                                                               "to edit (0 to cancel): ");
+                            if (pIdx == 0) {
+                                std::cout << "Editing cancelled.";
                                 break;
                             }
-                            std::cout << "Select a number to delete:" << std::endl;
-                            for (size_t i = 0; i < numbers.size(); ++i)
-                            {
-                                std::cout << i + 1 << ". " << numbers[i].type << ": " << numbers[i].number << std::endl;
+
+                            if (pIdx > 0 && pIdx <= numbers.size()) {
+                                std::string type = getPhoneTypeInput();
+                                std::string number = getPhoneNumberInput(
+                                    phonebook, contactToEdit, static_cast<int>(pIdx - 1));
+                                contactToEdit->editPhoneNumber(pIdx - 1, type, number);
+                                std::cout << "Phone number updated." << std::endl;
+                                break;
                             }
-                            idx = getInput<size_t>("Your choice (0 to cancel): ");
-                            if (idx > 0 && idx <= numbers.size())
-                            {
-                                if (contactToEdit->deletePhoneNumber(idx - 1))
-                                {
-                                    std::cout << "Number successfully deleted." << std::endl;
-                                }
-                            }
-                            else
-                            {
-                                std::cout << "Deletion cancelled or invalid input." << std::endl;
-                            }
+                            std::cout << "Invalid input." << std::endl;
                             break;
                         }
-                    case '0':
-                        editing = false;
-                        std::cout << "Editing finished." << std::endl;
-                        break;
-                    default:
-                        std::cout << "Invalid input." << std::endl;
-                        break;
+                        case '9': {
+                            const std::vector<PhoneNumber>& numbers = contactToEdit->getPhoneNumbers();
+
+                            if (numbers.size() == 1) {
+                                std::cout << "Cannot delete the only phone number." << std::endl;
+                                break;
+                            }
+
+                            for (size_t i = 0; i < numbers.size(); ++i) {
+                                std::cout << i + 1 << ". " << numbers[i].type << ": " << numbers[i].number << std::endl;
+                            }
+
+                            const auto pIdx = getInput<size_t>("Select a number "
+                                                               "to delete (0 to cancel): ");
+                            if (pIdx == 0) {
+                                std::cout << "Deletion cancelled." << std::endl;
+                                break;
+                            }
+
+                            if (pIdx > 0 && pIdx <= numbers.size()) {
+                                contactToEdit->deletePhoneNumber(pIdx - 1);
+                                std::cout << "Phone number deleted." << std::endl;
+                                break;
+                            }
+                            std::cout << "Invalid input." << std::endl;
+                            break;
+                        }
+                        case '0': {
+                            std::cout << "Editing finished." << std::endl;
+                            return;
+                        }
+                        default: {
+                            std::cout << "Invalid input." << std::endl;
+                            break;
+                        }
                     }
                 }
             }
-            std::cout << "Error: Invalid index number. Please try again." << std::endl;
+            std::cout << "Invalid index number." << std::endl;
         }
     }
 
-    void sortContacts(Phonebook& phonebook)
-    {
+    void deleteContact(Phonebook& phonebook) {
+        if (phonebook.getAllContacts().empty()) {
+            std::cout << "\nPhonebook is empty." << std::endl;
+            return;
+        }
+
+        std::cout << "\n--- Deleting contact ---" << std::endl;
+        std::cout << "First, find the contact you want to delete." << std::endl;
+
+        const std::vector<Contact> foundContacts = searchContacts(phonebook);
+
+        if (foundContacts.empty()) {
+            return;
+        }
+
+        while (true) {
+            const auto choice = getInput<size_t>("\nEnter the index number of "
+                                                 "the contact to delete (0 to cancel): ");
+
+            if (choice == 0) {
+                std::cout << "Deletion canceled." << std::endl;
+                return;
+            }
+
+            if (choice > 0 && choice <= foundContacts.size()) {
+                const int idToDelete = foundContacts[choice - 1].getId();
+                phonebook.deleteContact(idToDelete);
+                std::cout << "Contact with ID " << idToDelete << " deleted." << std::endl;
+                return;
+            }
+            std::cout << "Invalid index number." << std::endl;
+        }
+    }
+
+    void sortContacts(Phonebook& phonebook) {
         std::vector<SortCriterion> criteria;
 
-        while (true)
-        {
-            std::cout << "\n--- Sort Builder ---" << std::endl;
-            if (!criteria.empty())
-            {
-                std::cout << "Levels already added: " << criteria.size() << std::endl;
+        while (true) {
+            std::cout << "\n--- Sort builder ---" << std::endl;
+            if (!criteria.empty()) {
+                std::cout << "Current sort levels:" << std::endl;
+                for (size_t i = 0; i < criteria.size(); ++i) {
+                    std::string fieldName;
+                    switch (criteria[i].field) {
+                        case SortField::ID:
+                            fieldName = "ID";
+                            break;
+                        case SortField::SURNAME:
+                            fieldName = "Surname";
+                            break;
+                        case SortField::FORENAME:
+                            fieldName = "Forename";
+                            break;
+                        case SortField::PATRONYMIC:
+                            fieldName = "Patronymic";
+                            break;
+                        case SortField::ADDRESS:
+                            fieldName = "Address";
+                            break;
+                        case SortField::BIRTH_DATE:
+                            fieldName = "Birth date";
+                            break;
+                        case SortField::EMAIL:
+                            fieldName = "Email";
+                            break;
+                    }
+
+                    std::string directionName = criteria[i].direction == SortDirection::ASCENDING
+                                                    ? "Ascending"
+                                                    : "Descending";
+
+                    std::cout << "  " << (i + 1) << ". " << fieldName << " (" << directionName << ")" << std::endl;
+                }
+                std::cout << "---------------------------------" << std::endl;
             }
+
             std::cout << "Select a field for the next sort level:" << std::endl;
             std::cout << "1. ID" << std::endl;
             std::cout << "2. Surname" << std::endl;
             std::cout << "3. Forename" << std::endl;
             std::cout << "4. Patronymic" << std::endl;
             std::cout << "5. Address" << std::endl;
-            std::cout << "6. Email" << std::endl;
-            std::cout << "7. Birth Date" << std::endl;
+            std::cout << "6. Birth date" << std::endl;
+            std::cout << "7. Email" << std::endl;
             std::cout << "---------------------------------" << std::endl;
-            std::cout << "0. Execute Sort" << std::endl;
+            std::cout << "0. Execute sort" << std::endl;
 
             char choice = getInput<char>("Your choice: ");
 
-            if (choice == '0')
-            {
+            if (choice == '0') {
                 break;
             }
 
             SortField field;
-            switch (choice)
-            {
-            case '1':
-                field = SortField::ID;
-                break;
-            case '2':
-                field = SortField::SURNAME;
-                break;
-            case '3':
-                field = SortField::FORENAME;
-                break;
-            case '4':
-                field = SortField::PATRONYMIC;
-                break;
-            case '5':
-                field = SortField::ADDRESS;
-                break;
-            case '6':
-                field = SortField::EMAIL;
-                break;
-            case '7':
-                field = SortField::BIRTH_DATE;
-                break;
-            default:
-                std::cout << "Invalid choice." << std::endl;
-                continue;
+            switch (choice) {
+                case '1':
+                    field = SortField::ID;
+                    break;
+                case '2':
+                    field = SortField::SURNAME;
+                    break;
+                case '3':
+                    field = SortField::FORENAME;
+                    break;
+                case '4':
+                    field = SortField::PATRONYMIC;
+                    break;
+                case '5':
+                    field = SortField::ADDRESS;
+                    break;
+                case '6':
+                    field = SortField::BIRTH_DATE;
+                    break;
+                case '7':
+                    field = SortField::EMAIL;
+                    break;
+                default:
+                    std::cout << "Invalid input." << std::endl;
+                    continue;
             }
 
             std::cout << "Select direction:" << std::endl;
@@ -707,17 +602,12 @@ namespace cli
             choice = getInput<char>("Your choice: ");
 
             SortDirection direction;
-            if (choice == '1')
-            {
+            if (choice == '1') {
                 direction = SortDirection::ASCENDING;
-            }
-            else if (choice == '2')
-            {
+            } else if (choice == '2') {
                 direction = SortDirection::DESCENDING;
-            }
-            else
-            {
-                std::cout << "Invalid choice." << std::endl;
+            } else {
+                std::cout << "Invalid input." << std::endl;
                 continue;
             }
 
@@ -725,14 +615,13 @@ namespace cli
             std::cout << "Criterion added." << std::endl;
         }
 
-        if (criteria.empty())
-        {
+        if (criteria.empty()) {
             std::cout << "No criteria selected. Sort canceled." << std::endl;
             return;
         }
 
         phonebook.sortContacts(criteria);
         std::cout << "\nContacts sorted. Here is the new order:" << std::endl;
-        phonebook.printAllContacts();
+        printAllContacts(phonebook);
     }
 }

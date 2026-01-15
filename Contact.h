@@ -2,20 +2,19 @@
 #include "Date.h"
 #include <string>
 #include <vector>
+#include <utility>
 
-struct PhoneNumber
-{
+struct PhoneNumber {
     std::string type;
     std::string number;
 
     PhoneNumber(std::string type, std::string number) : type(std::move(type)), number(std::move(number)) {}
 };
 
-class Contact
-{
+class Contact {
     int id = 0;
-    std::string forename;
     std::string surname;
+    std::string forename;
     std::string patronymic;
     std::string address;
     Date birthDate;
@@ -24,13 +23,11 @@ class Contact
 
 public:
     Contact() = default;
-    Contact(std::string  forename, std::string  surname, std::string  patronymic,
-            std::string  address, const Date& birthDate, std::string  email, const std::vector<PhoneNumber>& phoneNumbers);
     ~Contact() = default;
 
     int getId() const;
-    std::string getForename() const;
     std::string getSurname() const;
+    std::string getForename() const;
     std::string getPatronymic() const;
     std::string getAddress() const;
     Date getBirthDate() const;
@@ -38,8 +35,8 @@ public:
     std::vector<PhoneNumber> getPhoneNumbers() const;
 
     void setId(int _id);
-    void setForename(const std::string& _forename);
     void setSurname(const std::string& _surname);
+    void setForename(const std::string& _forename);
     void setPatronymic(const std::string& _patronymic);
     void setAddress(const std::string& _address);
     void setBirthDate(const Date& _birthDate);
@@ -49,5 +46,5 @@ public:
     bool deletePhoneNumber(size_t idx);
     bool editPhoneNumber(size_t idx, const std::string& newType, const std::string& newNumber);
 
-    void print() const;
+    void clearPhoneNumbers();
 };

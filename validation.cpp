@@ -5,7 +5,6 @@
 #include <regex>
 
 namespace validation {
-
     std::string trim(const std::string& str) {
         const std::string whitespace = " \t\n\r\f\v";
         const size_t first = str.find_first_not_of(whitespace);
@@ -17,27 +16,12 @@ namespace validation {
     }
 
     bool isValidName(const std::string& name) {
-        const std::regex nameRegex("^[a-zA-Zа-яА-ЯёЁ]([a-zA-Zа-яА-ЯёЁ0-9- ]*[a-zA-Zа-яА-ЯёЁ0-9])?$");
+        const std::regex nameRegex("^[a-zA-Z]([a-zA-Z0-9- ]*[a-zA-Z0-9])?$");
         return std::regex_match(name, nameRegex);
     }
 
-    bool isValidPhoneType(const std::string& type) {
-        if (type.empty()) {
-            return false;
-        }
-
-        const std::regex typeRegex("^[a-zA-Zа-яА-Я0-9]([a-zA-Zа-яА-Я0-9 ]*[a-zA-Zа-яА-Я0-9])?$");
-        return std::regex_match(type, typeRegex);
-    }
-
-    bool isValidPhoneNumber(const std::string& phone) {
-        const std::regex phoneRegex(R"(^(\+7|8) ?\(?\d{3}\)? ?\d{3}(-?\d{2}){2}$)");
-        return std::regex_match(phone, phoneRegex);
-    }
-
-    bool isValidEmail(const std::string& email) {
-        const std::regex emailRegex("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$");
-        return std::regex_match(email, emailRegex);
+    bool isValidAddress(const std::string& address) {
+        return true;
     }
 
     bool isValidDate(const int day, const int month, const int year) {
@@ -46,13 +30,19 @@ namespace validation {
         }
 
         if (month == 4 || month == 6 || month == 9 || month == 11) {
-            if (day > 30) return false;
+            if (day > 30) {
+                return false;
+            }
         } else if (month == 2) {
-            bool isLeap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-            if (isLeap) {
-                if (day > 29) return false;
+            const bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+            if (isLeapYear) {
+                if (day > 29) {
+                    return false;
+                }
             } else {
-                if (day > 28) return false;
+                if (day > 28) {
+                    return false;
+                }
             }
         }
 
@@ -62,9 +52,9 @@ namespace validation {
         const int currentMonth = now->tm_mon + 1;
         const int currentDay = now->tm_mday;
 
-        const long long inputDateAsNumber = year * 10000 + month * 100 + day;
+        const int inputDateAsNumber = year * 10000 + month * 100 + day;
 
-        const long long currentDateAsNumber = currentYear * 10000 + currentMonth * 100 + currentDay;
+        const int currentDateAsNumber = currentYear * 10000 + currentMonth * 100 + currentDay;
 
         if (inputDateAsNumber > currentDateAsNumber) {
             return false;
@@ -73,14 +63,29 @@ namespace validation {
         return true;
     }
 
-    bool isValidAddress(const std::string& address) {
-        if (address.empty()) {
-            return true;
-        }
+    bool isValidEmail(const std::string& email) {
+        const std::regex emailRegex("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$");
+        return std::regex_match(email, emailRegex);
+    }
 
-        const std::regex addressRegex(R"(^[a-zA-Zа-яА-ЯёЁ0-9\s\-,.#№()/\\_]+$)");
+    bool isValidPhoneType(const std::string& type) {
+        return !type.empty();
+    }
 
-        return std::regex_match(address, addressRegex);
+    bool isValidPhoneNumber(const std::string& phone) {
+        const std::regex phoneRegex(R"(^(\+7|8) ?\(?\d{3}\)? ?\d{3}(-?\d{2}){2}$)");
+        return std::regex_match(phone, phoneRegex);
+    }
+
+    std::string normalizeEmail(const std::string& email) {
+        std::string normalizedEmail = email;
+
+        normalizedEmail.erase( std::remove_if(normalizedEmail.begin(), normalizedEmail.end(),
+                                         [](unsigned char c){ return std::isspace(c); }), normalizedEmail.end());
+
+        std::transform(normalizedEmail.begin(), normalizedEmail.end(), normalizedEmail.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+        return normalizedEmail;
     }
 
     std::string normalizePhoneNumber(const std::string& phone) {
@@ -100,14 +105,18 @@ namespace validation {
         return digits;
     }
 
-    std::string normalizeEmail(const std::string& email) {
-        std::string normalized = email;
-
-        normalized.erase( std::remove_if(normalized.begin(), normalized.end(),
-                       [](unsigned char c){ return std::isspace(c); }), normalized.end());
-
-        std::transform(normalized.begin(), normalized.end(), normalized.begin(),
+    bool isForenameInEmail(const std::string& email, const std::string& forename) {
+        std::string normalizedEmail = normalizeEmail(email);
+        std::string lowerName = forename;
+        std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(),
                        [](unsigned char c){ return std::tolower(c); });
-        return normalized;
+
+        const size_t atPos = normalizedEmail.find('@');
+        if (atPos == std::string::npos) {
+            return false;
+        }
+        const std::string localPart = normalizedEmail.substr(0, atPos);
+
+        return localPart.find(lowerName) != std::string::npos;
     }
 }

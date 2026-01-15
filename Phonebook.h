@@ -4,47 +4,40 @@
 #include <string>
 #include <vector>
 
-
-enum class SearchField
-{
+enum class SearchField {
     ID,
-    FORENAME,
     SURNAME,
+    FORENAME,
     PATRONYMIC,
     ADDRESS,
-    EMAIL,
     BIRTH_DAY,
     BIRTH_MONTH,
     BIRTH_YEAR,
+    EMAIL,
     PHONE
 };
 
-enum class SortField
-{
+enum class SortField {
     ID,
     SURNAME,
     FORENAME,
     PATRONYMIC,
     ADDRESS,
-    EMAIL,
-    BIRTH_DATE
+    BIRTH_DATE,
+    EMAIL
 };
 
-enum class SortDirection
-{
+enum class SortDirection {
     ASCENDING,
     DESCENDING
 };
 
-struct SortCriterion
-{
+struct SortCriterion {
     SortField field;
     SortDirection direction;
 };
 
-
-class Phonebook
-{
+class Phonebook {
     std::vector<Contact> contacts;
     int nextId;
 
@@ -54,17 +47,19 @@ public:
     void initializeNextId();
 
     void addContact(Contact& contact);
-    void addContactFromFile(const Contact& contact);
+    void addContactFromStorage(const Contact& contact);
 
     bool deleteContact(int id);
 
-    Contact* findContactById(int id);
+    Contact* findContact(int id);
     std::vector<Contact> searchContacts(const std::map<SearchField, std::string>& criteria) const;
     void sortContacts(const std::vector<SortCriterion>& criteria);
     const std::vector<Contact>& getAllContacts() const;
 
-    void printAllContacts() const;
+    std::vector<Contact> searchAllFields(const std::string& query) const;
 
-    bool isEmailUnique(const std::string& email, int ignoreId = 0) const;
-    bool isPhoneNumberUnique(const std::string& number, int ignoreId = 0) const;
+    void reorderContacts(const std::vector<int>& orderedIds);
+
+    bool isEmailUnique(const std::string& email, int ignoreId) const;
+    bool isPhoneNumberUnique(const std::string& number, int ignoreId) const;
 };
