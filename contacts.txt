@@ -1,0 +1,29 @@
+1;Ivanov;Ivan;Ivanovich;Moscow, Lenina st. 10, apt. 5;15;5;1990;ivan.ivanov90@mail.ru;Mobile:+7 (916) 123-45-67|Work:+7 (495) 123-45-67
+2;Smirnov;Aleksey;Petrovich;St. Petersburg, Nevsky pr. 25;20;10;1985;aleksey.smirnov@yandex.ru;Mobile:+7 (921) 987-65-43
+3;Kuznetsova;Maria;Sergeevna;Novosibirsk, Krasny pr. 50;3;3;1995;maria_kuz@gmail.com;Mobile:+7 (913) 111-22-33|Home:+7 (383) 222-33-44
+4;Popov;Dmitry;Aleksandrovich;Ekaterinburg, Malysheva st. 12;12;12;1988;dmitry.popov@bk.ru;Mobile:+7 (902) 555-66-77
+5;Sokolova;Elena;Vladimirovna;Kazan, Bauman st. 8;28;2;1992;elena.sokol@mail.ru;Mobile:+7 (917) 888-99-00
+6;Lebedev;Sergey;Nikolayevich;Nizhny Novgorod, Minina st. 1;1;1;1980;sergey_leb@rambler.ru;Work:+7 (831) 444-55-66|Mobile:+7 (951) 123-45-67
+7;Kozlova;Olga;Ivanovna;Chelyabinsk, Kirova st. 100;14;7;1998;olga.k1998@yandex.ru;Mobile:+7 (904) 567-89-01
+8;Novikov;Andrey;Pavlovich;Samara, Leningradskaya st. 5;9;5;1983;andrey.nov@gmail.com;Mobile:+7 (927) 111-22-33|Work:+7 (846) 333-44-55
+9;Morozova;Natalia;Dmitrievna;Omsk, Lenina st. 15;30;11;1987;natalia_m@mail.ru;Mobile:+7 (913) 999-88-77
+10;Petrov;Petr;Petrovich;Rostov-on-Don, Sadovaya st. 45;10;10;1990;petr.petrov@bk.ru;Mobile:+7 (928) 123-12-12|Home:+7 (863) 222-33-44
+11;Volkov;Vladimir;Ilyich;Ufa, Oktyabrya pr. 10;22;4;1975;vladimir.v@yandex.ru;Mobile:+7 (917) 345-67-89
+12;Solovyova;Ekaterina;Mikhailovna;Krasnoyarsk, Mira pr. 20;5;9;1993;ekaterina_sol@gmail.com;Mobile:+7 (908) 123-45-67
+13;Vasilyev;Pavel;Andreevich;Voronezh, Revolyutsii pr. 30;18;1;1986;pavel.vas@mail.ru;Mobile:+7 (950) 765-43-21|Work:+7 (473) 222-11-00
+14;Zaytseva;Svetlana;Yuryevna;Perm, Lenina st. 50;7;6;1991;svetlana.z@yandex.ru;Mobile:+7 (912) 111-22-33
+15;Pavlov;Nikolai;Viktorovich;Volgograd, Lenina pr. 15;25;12;1982;nikolai_pav@rambler.ru;Mobile:+7 (905) 333-44-55
+16;Semenova;Tatiana;Olegovna;Krasnodar, Krasnaya st. 10;11;3;1996;tatiana.sem@gmail.com;Mobile:+7 (918) 123-45-67|Home:+7 (861) 222-33-44
+17;Golubev;Alexander;Igorevich;Saratov, Moskovskaya st. 5;2;8;1989;alexander.g@bk.ru;Mobile:+7 (906) 111-22-33
+18;Vinogradova;Irina;Sergeevna;Tyumen, Respubliki st. 25;19;10;1994;irina_vin@mail.ru;Mobile:+7 (922) 444-55-66
+19;Bogdanov;Mikhail;Vladimirovich;Tolyatti, Yubileynaya st. 1;4;4;1984;mikhail.b@yandex.ru;Work:+7 (848) 211-22-33|Mobile:+7 (927) 000-11-22
+20;Vorobyova;Anna;Pavlovna;Izhevsk, Pushkinskaya st. 100;16;5;1997;anna.vor@gmail.com;Mobile:+7 (912) 888-77-66
+21;Fedorov;Konstantin;Andreevich;Barnaul, Lenina pr. 5;31;1;1981;konstantin.f@mail.ru;Mobile:+7 (903) 123-45-67
+22;Mikhailova;Yulia;Dmitrievna;Ulyanovsk, Goncharova st. 12;8;9;1990;yulia.mikh@yandex.ru;Mobile:+7 (927) 111-00-99
+23;Belyayev;Artem;Evgenyevich;Irkutsk, Karla Marksa st. 20;23;11;1988;artem.bel@bk.ru;Mobile:+7 (902) 555-44-33|Work:+7 (395) 222-33-44
+24;Tarasova;Daria;Alexandrovna;Khabarovsk, Muravyeva-Amurskogo st. 1;13;2;1995;daria.tar@gmail.com;Mobile:+7 (914) 111-22-33
+26;Komarova;Marina;Valeryevna;Vladivostok, Svetlanskaya st. 10;6;12;1992;marina.kom@yandex.ru;Mobile:+7 (924) 123-45-67
+27;Pavlov;Igor;Petrovich;Makhachkala, Gamzatova pr. 5;17;3;1985;igor.pavlov@rambler.ru;Mobile:+7 (928) 555-66-77
+28;Kiselev;Kirill;Sergeevich;Tomsk, Lenina pr. 30;1;7;1999;kirill.kis@gmail.com;Mobile:+7 (913) 888-99-00
+29;Makarova;Polina;Andreevna;Orenburg, Sovetskaya st. 10;29;8;1993;polina.mak@mail.ru;Mobile:+7 (922) 333-44-55
+30;Andreev;Roman;Nikolayevich;Kemerovo, Sovetskiy pr. 25;14;10;1986;roman.and@bk.ru;Work:+7 (384) 211-22-33|Mobile:+7 (905) 123-45-67
